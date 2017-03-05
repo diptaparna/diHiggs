@@ -16,7 +16,9 @@ bool basic_plots::Initialize(const MA5::Configuration& cfg,
 	pt2 = new TH1F("pt2", "Pt of Higgs 2", 50, 0, 5000);
 	eta1 = new TH1F("eta1", "Eta of Higgs 1", 50, -4, 4);
 	eta2 = new TH1F("eta2", "Eta of Higgs 2", 50, -4, 4);
-	noOfJets = new TH1I("noOfJets", "No. of Jets", 50, 100, 200);
+	noOfJets30 = new TH1I("noOfJets30", "No. of Jets (pT > 30 GeV)", 50, 0, 200);
+	noOfJets50 = new TH1I("noOfJets50", "No. of Jets (pT > 50 GeV)", 50, 0, 200);
+	rec_mass = new TH1F("rec_mass", "Reconstructed Mass of y", 50, 0, 10000);
 	cout << "END   Initialization" << endl;
 	return true;
 }
@@ -44,8 +46,17 @@ void basic_plots::Finalize(const SampleFormat& summary,
 	c.SaveAs("eta1.png");
 	eta2->Draw();
 	c.SaveAs("eta2.png");
-	noOfJets->Draw();
-	c.SaveAs("noOfJets.png");
+	noOfJets30->Draw();
+	c.SaveAs("noOfJets30.png");
+	noOfJets50->Draw();
+	c.SaveAs("noOfJets50.png");
+	string rootf=files[0].name().substr(files[0].name().find("test_"),files[0].name().find(".root")-files[0].name().find("test_"));
+	TFile f((rootf+".root").c_str(),"RECREATE");
+	noOfJets30->SetName((rootf+"_noOfJets30").c_str());
+	noOfJets30->Write();
+	noOfJets50->SetName((rootf+"_noOfJets50").c_str());
+	noOfJets50->Write();
+	f.Close();
 	cout << "END   Finalization" << endl;
 }
 
@@ -82,6 +93,8 @@ bool basic_plots::Execute(SampleFormat& sample, const EventFormat& event) {
 
 	if (event.rec() != 0) {
 		cout << "---------------NEW EVENT-------------------" << endl;
+		int nJets30=0;
+		int nJets50=0;
 
 		for (unsigned int i = 0; i < event.rec()->jets().size(); i++) {
 			const RecJetFormat& jet = event.rec()->jets()[i];
@@ -100,11 +113,15 @@ bool basic_plots::Execute(SampleFormat& sample, const EventFormat& event) {
 			cout << "EE/HE=" << jet.EEoverHE() << " ntracks=" << jet.ntracks()
 					<< endl;
 			cout << endl;
-		}
 
-		noOfJets->Fill(event.rec()->jets().size());
+			if(jet.eta()<3 && jet.pt()>30)
+				nJets30++;
+			if(jet.eta()<3 && jet.pt()>50)
+				nJets50++;
+		}
+		noOfJets30->Fill(nJets30);
+		noOfJets50->Fill(nJets50);
 		met_rec->Fill(event.rec()->MET().pt());
 	}
 	return true;
 }
-
