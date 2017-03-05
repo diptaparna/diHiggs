@@ -22,7 +22,9 @@ class basic_plots : public AnalyzerBase
   TH1F *pt2;
   TH1F *eta1;
   TH1F *eta2;
-  TH1I *noOfJets;
+  TH1I *noOfJets30;
+  TH1I *noOfJets50;
+  TH1F *rec_mass;
 };
 }
 
