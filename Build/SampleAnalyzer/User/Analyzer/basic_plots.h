@@ -25,6 +25,10 @@ class basic_plots : public AnalyzerBase
   TH1I *noOfJets30;
   TH1I *noOfJets50;
   TH1F *rec_mass;
+  TH1F *eta_bjets;
+  TH1F *phi_bjets;
+  TH1F *eta_leading_bjet;
+  TH1F *phi_leading_bjet;
 };
 }
 
